@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Glassy Futuristic Birthday Card</title>
+<style>
+  /* ---------- THEME TOKENS ---------- */
+  :root{
+	--bg-1: #0a1220;
+	--bg-2: #07101c;
+	--neon: #00e5ff;
+	--neon-soft: rgba(0,229,255,.2);
+	--panel: rgba(10,20,35,.35);
+	--panel-border: rgba(0,229,255,.35);
+	--text: #d8faff;
+	--radius: 28px;
+	/* New metallic brown color token for balloons */
+	--metallic-brown: #3f2f2f;
+  }
+
+  /* Page layout */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+	margin:0;
+	background:
+	  radial-gradient(80vw 80vh at 70% -10%, #12345a22, transparent 60%),
+	  radial-gradient(70vw 80vh at -10% 120%, #12345a22, transparent 60%),
+	  linear-gradient(180deg, var(--bg-1), var(--bg-2));
+	color:var(--text);
+	font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+	display:grid;
+	place-items:center;
+	overflow:hidden;
+  }
+
+  /* Subtle starfield/particles */
+  .stars, .stars:before, .stars:after{
+	content:"";
+	position:fixed; inset:0;
+	background-image:
+	  radial-gradient(1px 1px at 10% 20%, #ffffff22 98%, transparent),
+	  radial-gradient(1px 1px at 30% 80%, #ffffff18 98%, transparent),
+	  radial-gradient(1px 1px at 70% 60%, #ffffff1c 98%, transparent),
+	  radial-gradient(1px 1px at 85% 30%, #ffffff12 98%, transparent),
+	  radial-gradient(1px 1px at 50% 10%, #ffffff16 98%, transparent),
+	  radial-gradient(1px 1px at 15% 60%, #ffffff10 98%, transparent);
+	animation: drift 30s linear infinite;
+	pointer-events:none;
+  }
+  .stars:before{animation-duration:50s; opacity:.7}
+  .stars:after{animation-duration:80s; opacity:.5}
+  @keyframes drift {
+	from { transform: translateY(0) }
+	to   { transform: translateY(-200px) }
+  }
+
+  /* Card shell */
+  .card{
+	position:relative;
+	width:min(88vw, 540px);
+	aspect-ratio: 3/4.8;
+	height: auto;
+	max-height: 90vh;
+	border-radius: var(--radius);
+	background: linear-gradient(180deg, #0a1626aa, #061018a0) padding-box;
+	border: 2px solid var(--panel-border);
+	box-shadow:
+	  0 0 0 1px rgba(0,229,255,.15) inset,
+	  0 0 40px 6px rgba(0,229,255,.12),
+	  0 30px 60px -10px #000;
+	backdrop-filter: blur(10px) saturate(120%);
+	-webkit-backdrop-filter: blur(10px) saturate(120%);
+	display:grid;
+	place-items:center;
+	overflow:hidden;
+	transition: all 0.8s ease-in-out;
+  }
+
+  /* New: Card state after opening */
+  .card.opened {
+	aspect-ratio: unset;
+	height: min(90vh, 800px); /* Sets a max height for the opened card */
+	padding: 20px;
+	/* Overrides previous blur for better legibility of text */
+	backdrop-filter: blur(5px) saturate(100%);
+	-webkit-backdrop-filter: blur(5px) saturate(100%);
+  }
+
+  /* Rounded edge reflection */
+  .card:before{
+	content:"";
+	position:absolute; inset:0;
+	border-radius:inherit;
+	padding:14px;
+	background:
+	  linear-gradient(180deg, transparent 0 35%, rgba(255,255,255,.06) 36% 64%, transparent 65%) border-box;
+	-webkit-mask:
+	  linear-gradient(#000 0 0) content-box,
+	  linear-gradient(#000 0 0) padding-box;
+	-webkit-mask-composite: xor; mask-composite: exclude;
+	border: 1px solid rgba(255,255,255,.05);
+	pointer-events:none;
+  }
+
+  /* Inner neon frame (like a HUD) */
+  .frame{
+	position:absolute; inset:18px;
+	border-radius: calc(var(--radius) - 16px);
+	border: 2px solid var(--neon);
+	opacity:.45;
+	box-shadow:
+	  0 0 12px var(--neon),
+	  inset 0 0 18px var(--neon);
+	pointer-events:none;
+	transition: opacity 0.5s ease-out;
+  }
+
+  /* Corner cut lines (sci-fi corners) */
+  .corner{
+	position:absolute; width:48px; height:48px; opacity:.55; filter: drop-shadow(0 0 6px var(--neon));
+  }
+  .c1{top:22px; left:22px; border-top:2px solid var(--neon); border-left:2px solid var(--neon); border-top-left-radius:14px}
+  .c2{top:22px; right:22px; border-top:2px solid var(--neon); border-right:2px solid var(--neon); border-top-right-radius:14px}
+  .c3{bottom:22px; left:22px; border-bottom:2px solid var(--neon); border-left:2px solid var(--neon); border-bottom-left-radius:14px}
+  .c4{bottom:22px; right:22px; border-bottom:2px solid var(--neon); border-right:2px solid var(--neon); border-bottom-right-radius:14px}
+
+  /* Animated horizontal HUD lines */
+  .hud-lines{
+	position:absolute; inset:0; pointer-events:none; opacity:.25
+  }
+  .hud-lines:before, .hud-lines:after{
+	content:""; position:absolute; left:8%; right:8%;
+	height:1px; background: linear-gradient(90deg, transparent, var(--neon), transparent);
+	box-shadow: 0 0 10px var(--neon);
+	animation: sweep 6s linear infinite;
+  }
+  .hud-lines:before{ top: 30% }
+  .hud-lines:after { top: 66%; animation-delay: 2.2s }
+  @keyframes sweep {
+	from { transform: translateX(-15%) }
+	to   { transform: translateX(15%) }
+  }
+
+  /* Glass shine */
+  .shine{
+	position:absolute; inset:-20%; transform: rotate(-15deg);
+	background: linear-gradient(90deg, transparent 0 36%, rgba(255,255,255,.08) 48%, transparent 62% 100%);
+	animation: shineMove 5.5s ease-in-out infinite;
+	mix-blend-mode: screen; pointer-events:none;
+  }
+  @keyframes shineMove {
+	0%, 100% { transform: translateX(-15%) rotate(-15deg) }
+	50%	  { transform: translateX(15%)  rotate(-15deg) }
+  }
+
+  /* Scanline texture */
+  .scanlines{
+	position:absolute; inset:0; pointer-events:none;
+	background:
+	  repeating-linear-gradient(
+		to bottom,
+		rgba(255,255,255,.05) 0 1px,
+		transparent 1px 3px
+	  );
+	opacity:.08; mix-blend-mode: screen;
+	animation: jitter 2.2s steps(2) infinite;
+  }
+  @keyframes jitter {
+	50%{ transform: translateY(.5px) }
+  }
+
+  /* Glow helpers */
+  .glow { text-shadow:
+	  0 0 6px var(--neon),
+	  0 0 14px var(--neon),
+	  0 0 28px var(--neon); }
+
+  /* Card content container */
+  .content{
+	position:relative;
+	display:grid;
+	gap:16px;
+	align-items:center;
+	justify-items:center;
+	padding:38px 26px;
+	text-align:center;
+	z-index:2;
+	transition: opacity 0.5s ease-out;
+  }
+
+  /* New: State when content is hidden */
+  .content.hidden {
+	opacity: 0;
+	pointer-events: none;
+  }
+
+  .cake{
+	width:min(42%, 180px);
+	filter: drop-shadow(0 0 12px var(--neon));
+  }
+  /* Candle flame flicker (targets .flame paths in SVG) */
+  .flame{
+	transform-origin:center;
+	animation: flicker 1.1s ease-in-out infinite;
+  }
+  .flame:nth-child(1){ animation-duration: .95s; animation-delay: -.2s }
+  .flame:nth-child(2){ animation-duration: 1.15s; animation-delay: -.4s }
+  .flame:nth-child(3){ animation-duration: 1.05s; animation-delay: -.1s }
+  @keyframes flicker{
+	0%,100%{ opacity:.85; transform: translateY(0) scale(1) }
+	50%   { opacity:.55; transform: translateY(-1px) scale(1.05) }
+  }
+
+  h1{
+	margin:0;
+	letter-spacing:.06em;
+	font-weight:800;
+	font-size:clamp(28px, 6.5vw, 56px);
+	line-height:1.05;
+	color: var(--neon);
+  }
+  .subtitle{
+	font-size:clamp(12px, 2.7vw, 14px);
+	color:#c7f7ff;
+	opacity:.85;
+  }
+
+  /* Pulsing outer aura */
+  .aura{
+	position:absolute; inset:-12px;
+	border-radius:inherit;
+	box-shadow: 0 0 80px 10px var(--neon-soft);
+	animation: pulse 3.2s ease-in-out infinite;
+	pointer-events:none;
+  }
+  @keyframes pulse{
+	0%,100%{ box-shadow: 0 0 80px 10px var(--neon-soft) }
+	50%	{ box-shadow: 0 0 120px 16px rgba(0,229,255,.28) }
+  }
+
+  /* Small footer signature (optional) */
+  .sig{
+	position:absolute; bottom:18px; right:24px;
+	font-size:12px; opacity:.6; letter-spacing:.15em;
+  }
+
+  /* --- NEW STYLES BELOW --- */
+
+  /* Button styles */
+  .open-button {
+	cursor: pointer;
+	background: transparent;
+	border: 2px solid var(--neon);
+	color: var(--neon);
+	padding: 12px 24px;
+	font-size: 16px;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	border-radius: 8px;
+	margin-top: 16px;
+	box-shadow: 0 0 10px var(--neon);
+	transition: all 0.3s ease-in-out;
+  }
+
+  .open-button:hover {
+	background: var(--neon-soft);
+	box-shadow: 0 0 20px var(--neon);
+  }
+
+  /* Glitch animation */
+  .glitch-effect {
+	animation: glitch 0.5s infinite;
+  }
+  @keyframes glitch {
+	0% { transform: translate(0, 0); }
+	20% { transform: translate(-2px, 2px); }
+	40% { transform: translate(-2px, -2px); }
+	60% { transform: translate(2px, 2px); }
+	80% { transform: translate(2px, -2px); }
+	100% { transform: translate(0, 0); }
+  }
+
+  /* New message content */
+  .message-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	padding: 50px 30px;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.8s ease, visibility 0.8s ease;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	overflow-y: auto; /* Enable scrolling for long messages */
+	z-index: 3;
+  }
+
+  .message-container.visible {
+	opacity: 1;
+	visibility: visible;
+  }
+
+  .message-content {
+	font-size: clamp(14px, 3.5vw, 18px);
+	line-height: 1.6;
+	max-width: 90%;
+	overflow-y: auto; /* Scroll the message text if it's too long */
+	scrollbar-width: none; /* Hide scrollbar for Firefox */
+	text-align: left;
+  }
+  /* Webkit-based browsers (Chrome, Safari) scrollbar hide */
+  .message-content::-webkit-scrollbar {
+	display: none;
+  }
+
+  .message-title {
+	font-size: clamp(24px, 5vw, 40px);
+	color: var(--neon);
+	letter-spacing: 0.1em;
+	margin-bottom: 20px;
+  }
+  
+  /* --- STYLES FOR FADED BACKGROUND AND ROLLING TEXT --- */
+
+  /* This is the background image container. CHANGE THE URL HERE */
+  .card-bg-image {
+	position: absolute;
+	inset: 0;
+	border-radius: var(--radius);
+	/*
+	  To change the image, just replace the URL below with the URL of your image.
+	  For example: url('https://your-image-url.com/your-image.jpg')
+	*/
+	background-image: url('https://i.ibb.co/Jz5X3yL/person.jpg');
+	background-size: cover;
+	background-position: center;
+	opacity: 0; /* Initially hidden */
+	transition: opacity 0.8s ease;
+	mix-blend-mode: luminosity; /* This creates the faded, glowing effect */
+	pointer-events: none;
+	z-index: 1;
+  }
+  .card.opened .card-bg-image {
+	opacity: 0.1; /* Fade in when opened */
+  }
+
+  /* This is the new container for the looping text */
+  .rolling-text-container {
+	position: absolute;
+	top: 100px; /* NEW: Adjusts the position to be at the top */
+	left: 0;
+	width: 100%;
+	height: 30px;
+	line-height: 30px;
+	overflow: hidden; /* This hides the text outside the container */
+	z-index: 4;
+	opacity: 0;
+	transition: opacity 0.8s ease;
+  }
+  /* This class makes the rolling text visible when the card is opened */
+  .rolling-text-container.visible {
+	opacity: 1;
+  }
+
+  /* This is the actual looping text element */
+  .rolling-text {
+	position: absolute;
+	white-space: nowrap; /* Prevents the text from wrapping to a new line */
+	font-size: 20px;
+	letter-spacing: 0.1em;
+	color: var(--neon);
+	animation: rollText 15s linear infinite; /* Animates the text */
+	text-shadow: 0 0 10px var(--neon);
+  }
+  /* CSS animation to make the text roll from right to left */
+  @keyframes rollText {
+	from { transform: translateX(100%); } /* Starts off-screen to the right */
+	to { transform: translateX(-100%); } /* Ends off-screen to the left */
+  }
+</style>
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+
+  <div class="card" role="img" aria-label="Glassy neon Happy Birthday holographic card">
+	<span class="aura" aria-hidden="true"></span>
+	<span class="frame" aria-hidden="true"></span>
+	<span class="corner c1" aria-hidden="true"></span>
+	<span class="corner c2" aria-hidden="true"></span>
+	<span class="corner c3" aria-hidden="true"></span>
+	<span class="corner c4" aria-hidden="true"></span>
+	<span class="hud-lines" aria-hidden="true"></span>
+	<span class="shine" aria-hidden="true"></span>
+	<span class="scanlines" aria-hidden="true"></span>
+	<div class="card-bg-image"></div>
+
+	<div class="rolling-text-container">
+	  <div class="rolling-text">
+		I have a special candle for you to blow🤣😩💀
+	  </div>
+	</div>
+
+	<div class="content">
+	  <svg class="cake" viewBox="0 0 256 256" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+		<defs>
+		  <filter id="glow">
+			<feGaussianBlur stdDeviation="2.2" result="coloredBlur"/>
+			<feMerge>
+			  <feMergeNode in="coloredBlur"/>
+			  <feMergeNode in="SourceGraphic"/>
+			</feMerge>
+		  </filter>
+		</defs>
+		<g stroke="#00e5ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+		  <path d="M36 182h184" />
+		  <rect x="56" y="116" width="144" height="56" rx="12"/>
+		  <path d="M56 144c22 18 38-18 60 0s38-18 60 0 24-6 24-6" />
+		  <line x1="92" y1="116" x2="92" y2="92"/>
+		  <line x1="128" y1="116" x2="128" y2="92"/>
+		  <line x1="164" y1="116" x2="164" y2="92"/>
+		  <g fill="#00e5ff" stroke="none">
+			<path class="flame" d="M92 82c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
+			<path class="flame" d="M128 80c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
+			<path class="flame" d="M164 82c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
+		  </g>
+		</g>
+	  </svg>
+
+	  <h1 class="glow">HAPPY<br/>BIRTHDAY OLLIE</h1>
+	  <div class="subtitle">Wishing you a vanilla flavored day ✨</div>
+	  <button class="open-button">Click to open &gt;</button>
+	</div>
+
+	<div class="message-container">
+	  <div class="message-title glow">HBD, LIV!</div>
+	  <div class="message-content">
+		<p>Dear Ollie,</p>
+		<p>Another year has passed, and you continue to shine brighter than ever. You are a truly amazing person, and I’m so grateful to have you in my life. I hope this new year brings you all the joy, success, and love you deserve. May your journey be filled with incredible adventures and happy moments that you'll cherish forever.</p>
+		<p>With all my love,</p>
+		<p>Your ...?🤧❤️💕</p>
+	  </div>
+	  <button class="close-button">Close</button>
+	</div>
+
+	<div class="sig">Phil</div>
+  </div>
+
+  <script>
+	// NEW: JavaScript for interactivity
+	const card = document.querySelector('.card');
+	const content = document.querySelector('.content');
+	const messageContainer = document.querySelector('.message-container');
+	const openButton = document.querySelector('.open-button');
+	const closeButton = document.querySelector('.close-button'); // NEW
+	const frame = document.querySelector('.frame');
+	const cardBgImage = document.querySelector('.card-bg-image');
+	const rollingTextContainer = document.querySelector('.rolling-text-container'); // NEW
+
+	openButton.addEventListener('click', () => {
+	  // Add glitch animation class
+	  card.classList.add('glitch-effect');
+	  frame.classList.add('glitch-effect');
+
+	  // Start the transitions after a short delay
+	  setTimeout(() => {
+		// Remove glitch effect after it runs
+		card.classList.remove('glitch-effect');
+		frame.classList.remove('glitch-effect');
+
+		// Hide original content and show new message
+		content.classList.add('hidden');
+		messageContainer.classList.add('visible');
+		card.classList.add('opened'); // Makes the card grow and change dimensions
+		cardBgImage.classList.add('visible');
+
+		// NEW: Delayed appearance of the rolling text
+		setTimeout(() => {
+			rollingTextContainer.classList.add('visible');
+		}, 11000); // 11000 milliseconds = 11 seconds
+
+	  }, 511); // Duration matches glitch animation
+	});
+
+	// NEW: Event listener for the Close button
+	closeButton.addEventListener('click', () => {
+	  // Hide the message and show the original content
+	  messageContainer.classList.remove('visible');
+	  cardBgImage.classList.remove('visible');
+	  rollingTextContainer.classList.remove('visible');
+	  
+	  // Return the card to its original size and state
+	  card.classList.remove('opened');
+	  
+	  // After a short delay to allow the card to shrink, show the main content again
+	  setTimeout(() => {
+		content.classList.remove('hidden');
+	  }, 511); // Wait for the card transition to finish before showing the content
+	});
+  </script>
+</body>
+</html>
