@@ -196,6 +196,64 @@
 	pointer-events: none;
   }
 
+  /* NEW: Style for the blurred content container */
+  .card-container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: grid;
+	place-items: center;
+	transition: filter 1s ease-in-out;
+  }
+
+  .card-container.blurred {
+	filter: blur(15px); /* This applies the blur effect */
+  }
+
+  /* NEW: Styles for the countdown timer */
+  .countdown-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	color: var(--neon);
+	z-index: 10;
+	pointer-events: none; /* Allows clicks to pass through */
+	transition: opacity 0.5s ease-in-out;
+  }
+
+  .countdown-overlay.hidden {
+	opacity: 0;
+  }
+
+  .countdown-text {
+	font-size: clamp(20px, 4vw, 32px);
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+	margin-bottom: 20px;
+	animation: pulse 1.5s ease-in-out infinite;
+	text-shadow: 0 0 10px var(--neon);
+  }
+
+  .countdown-timer {
+	font-size: clamp(38px, 10vw, 80px);
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-shadow: 0 0 20px var(--neon);
+  }
+
+  /* NEW: Keyframes for countdown text pulse */
+  @keyframes pulse {
+	0%, 100% { transform: scale(1); }
+	50% { transform: scale(1.05); }
+  }
+
   .cake{
 	width:min(42%, 180px);
 	filter: drop-shadow(0 0 12px var(--neon));
@@ -339,7 +397,7 @@
 	  To change the image, just replace the URL below with the URL of your image.
 	  For example: url('https://your-image-url.com/your-image.jpg')
 	*/
-	background-image: url('56682637-BFCB-49CB-A74B-29C8771FE52D.jpeg');
+	background-image: url('https://i.ibb.co/Jz5X3yL/person.jpg');
 	background-size: cover;
 	background-position: center;
 	opacity: 0; /* Initially hidden */
@@ -400,62 +458,71 @@
 	<span class="hud-lines" aria-hidden="true"></span>
 	<span class="shine" aria-hidden="true"></span>
 	<span class="scanlines" aria-hidden="true"></span>
-	<div class="card-bg-image"></div>
 
-	<div class="rolling-text-container">
-	  <div class="rolling-text">
-		I have a special candle for you to blow🤣😩💀
-	  </div>
+	<div class="countdown-overlay">
+		<div class="countdown-text">Birthday surprise in</div>
+		<div class="countdown-timer" id="countdown-timer"></div>
 	</div>
 
-	<div class="content">
-	  <svg class="cake" viewBox="0 0 256 256" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-		<defs>
-		  <filter id="glow">
-			<feGaussianBlur stdDeviation="2.2" result="coloredBlur"/>
-			<feMerge>
-			  <feMergeNode in="coloredBlur"/>
-			  <feMergeNode in="SourceGraphic"/>
-			</feMerge>
-		  </filter>
-		</defs>
-		<g stroke="#00e5ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
-		  <path d="M36 182h184" />
-		  <rect x="56" y="116" width="144" height="56" rx="12"/>
-		  <path d="M56 144c22 18 38-18 60 0s38-18 60 0 24-6 24-6" />
-		  <line x1="92" y1="116" x2="92" y2="92"/>
-		  <line x1="128" y1="116" x2="128" y2="92"/>
-		  <line x1="164" y1="116" x2="164" y2="92"/>
-		  <g fill="#00e5ff" stroke="none">
-			<path class="flame" d="M92 82c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
-			<path class="flame" d="M128 80c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
-			<path class="flame" d="M164 82c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
+	<div class="card-container">
+	  <div class="card-bg-image"></div>
+  
+	  <div class="rolling-text-container">
+		<div class="rolling-text">
+		  I have a special candle for you to blow🤣😩💀
+		</div>
+	  </div>
+  
+	  <div class="content">
+		<svg class="cake" viewBox="0 0 256 256" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+		  <defs>
+			<filter id="glow">
+			  <feGaussianBlur stdDeviation="2.2" result="coloredBlur"/>
+			  <feMerge>
+				<feMergeNode in="coloredBlur"/>
+				<feMergeNode in="SourceGraphic"/>
+			  </feMerge>
+			</filter>
+		  </defs>
+		  <g stroke="#00e5ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+			<path d="M36 182h184" />
+			<rect x="56" y="116" width="144" height="56" rx="12"/>
+			<path d="M56 144c22 18 38-18 60 0s38-18 60 0 24-6 24-6" />
+			<line x1="92" y1="116" x2="92" y2="92"/>
+			<line x1="128" y1="116" x2="128" y2="92"/>
+			<line x1="164" y1="116" x2="164" y2="92"/>
+			<g fill="#00e5ff" stroke="none">
+			  <path class="flame" d="M92 82c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
+			  <path class="flame" d="M128 80c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
+			  <path class="flame" d="M164 82c5 6 5 12 0 16s-12 0-12-6 7-10 12-10z"/>
+			</g>
 		  </g>
-		</g>
-	  </svg>
-
-	  <h1 class="glow">HAPPY<br/>BIRTHDAY OLLIE</h1>
-	  <div class="subtitle">Wishing you a vanilla flavored day ✨</div>
-	  <button class="open-button">Click to open &gt;</button>
-	</div>
-
-	<div class="message-container">
-	  <div class="message-title glow">HBD, LIV!</div>
-	  <div class="message-content">
-		<p>Dear Ollie,</p>
-		<p>Another year has passed, and you continue to shine brighter than ever. You are a truly amazing person, and I’m so grateful to have you in my life. I hope this new year brings you all the joy, success, and love you deserve. May your journey be filled with incredible adventures and happy moments that you'll cherish forever.</p>
-		<p>With all my love,</p>
-		<p>Your ...?🤧❤️💕</p>
+		</svg>
+  
+		<h1 class="glow">HAPPY<br/>BIRTHDAY OLLIE</h1>
+		<div class="subtitle">Wishing you a vanilla flavored day ✨</div>
+		<button class="open-button">Click to open &gt;</button>
 	  </div>
-	  <button class="close-button">Close</button>
+  
+	  <div class="message-container">
+		<div class="message-title glow">HBD, LIV!</div>
+		<div class="message-content">
+		  <p>Dear Ollie,</p>
+		  <p>Another year has passed, and you continue to shine brighter than ever. You are a truly amazing person, and I’m so grateful to have you in my life. I hope this new year brings you all the joy, success, and love you deserve. May your journey be filled with incredible adventures and happy moments that you'll cherish forever.</p>
+		  <p>With all my love,</p>
+		  <p>Your ...?🤧❤️💕</p>
+		</div>
+		<button class="close-button">Close</button>
+	  </div>
 	</div>
-
+  
 	<div class="sig">Phil</div>
   </div>
-
+  
   <script>
 	// NEW: JavaScript for interactivity
 	const card = document.querySelector('.card');
+	const cardContainer = document.querySelector('.card-container'); // NEW
 	const content = document.querySelector('.content');
 	const messageContainer = document.querySelector('.message-container');
 	const openButton = document.querySelector('.open-button');
@@ -463,6 +530,45 @@
 	const frame = document.querySelector('.frame');
 	const cardBgImage = document.querySelector('.card-bg-image');
 	const rollingTextContainer = document.querySelector('.rolling-text-container'); // NEW
+	const countdownOverlay = document.querySelector('.countdown-overlay'); // NEW
+	const countdownTimer = document.getElementById('countdown-timer'); // NEW
+
+	// The date and time for the birthday (August 28, 2025 at 12:00 AM)
+	// Note: Month is 0-indexed, so 7 is August.
+	const unblurDate = new Date(Date.UTC(2025, 7, 28, 0, 0, 0));
+
+	function updateCountdown() {
+	  const now = new Date().getTime();
+	  const distance = unblurDate - now;
+
+	  // Check if the time has passed
+	  if (distance <= 0) {
+		clearInterval(countdownInterval);
+		cardContainer.classList.remove('blurred');
+		countdownOverlay.classList.add('hidden');
+		return;
+	  }
+
+	  // Calculate days, hours, minutes, and seconds
+	  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+	  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+	  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+	  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+	  // Update the timer display
+	  countdownTimer.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+	}
+
+	// Initial check to apply blur or not
+	if (new Date().getTime() < unblurDate.getTime()) {
+	  cardContainer.classList.add('blurred');
+	  countdownOverlay.classList.remove('hidden');
+	  updateCountdown();
+	  var countdownInterval = setInterval(updateCountdown, 1000);
+	} else {
+	  cardContainer.classList.remove('blurred');
+	  countdownOverlay.classList.add('hidden');
+	}
 
 	openButton.addEventListener('click', () => {
 	  // Add glitch animation class
